@@ -5,7 +5,7 @@ import asyncio
 from credentials import client_id, client_secret, url
 
 
-class client(object):
+class Robot(object):
     def __init__(self, client_id, client_secret):
         self.client_id = client_id
         self.client_secret = client_secret
@@ -77,6 +77,9 @@ class client(object):
 
 
     async def sell_order(self, request, instrument_name, amount, type, price, trigger_price, trigger):
+        '''
+        Places a sell order for an instrument.
+        '''
         context = {
             "instrument_name" : instrument_name,
             "amount" : amount,
@@ -96,4 +99,20 @@ class client(object):
         return asyncio.get_event_loop().run_until_complete(self.sell_order(json.dumps(request)))
 
 
+    async def get_mark_price(self, request, order_id):
+        '''
+        Places a sell order for an instrument.
+        '''
+        context = {
+            "order_id" : order_id
+        }
+        self.json["id"] = 4316
+        self.json["method"] = "private/get_order_state"
+        self.json["params"] = context
+        async with websockets.connect(self.url) as websocket:
+            await websocket.send(request)
+            response = await websocket.recv()
+            response = json.loads(response)
+            print(response)
+        return asyncio.get_event_loop().run_until_complete(self.sell_order(json.dumps(request)))
 
