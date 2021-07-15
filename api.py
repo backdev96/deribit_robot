@@ -1,118 +1,75 @@
+from credentials import client_id, client_secret, auth_url, private_buy_url, get_order_book_url, private_sell_url
+import requests
 import json
-import websockets
-import asyncio
-
-from credentials import client_id, client_secret, url
-
 
 class Robot(object):
     def __init__(self, client_id, client_secret):
         self.client_id = client_id
         self.client_secret = client_secret
-        self.url = url
-        self.json = {
-            "jsonrpc" : "2.0",
-        }
+        self.auth_url = auth_url
+        self.private_buy_url = private_buy_url
+        self.get_order_book_url = get_order_book_url
+        self.private_sell_url = private_sell_url
+        self.session = requests.Session()
 
 
-    async def public_auth(self, request):
-        '''
-        Retrieve an Oauth access token, to be used
-        for authentication of 'private' requests.
-        '''
+    def auth(self):
         context = {
-            "grant_type" : "client_credentials",
-            "client_id" : self.client_id,
-            "client_secret" : self.client_secret
+            'client_id' : self.client_id,
+            'client_secret' : self.client_secret,
+            'grant_type' : 'client_credentials',
         }
-        self.json["id"] = 9929
-        self.json["method"] = "public/auth"
-        self.json["params"] = context
-        async with websockets.connect(self.url) as websocket:
-            await websocket.send(request)
-            while websocket.open:
-                response = await websocket.recv()
-                response = json.loads(response)
-                print(response)
-        return response
+        response = self.session.get(self.auth_url, params=context)
+        dict = json.loads(response.text)
+        return dict['result']['access_token']
 
+    def request(self, url, context):
+        auth_token = self.auth()
+        response = self.session.get(url, params=context, headers = {
+            'Accept':'application/json', 
+            'Authorization': f'bearer {auth_token}'})
+        return print(response.json())
 
-    async def cancel_order(self, request):
-        '''
-        This method cancels all users orders and trigger
-        orders within all currencies and instrument kinds.
-        This method takes no parameters.
-        '''
-        self.json["id"] = 8748
-        self.json["method"] = "private/cancel_all"
-        async with websockets.connect(self.url) as websocket:
-            await websocket.send(request)
-            response = await websocket.recv()
-            response = json.loads(response)
-            print(response)
-        return asyncio.get_event_loop().run_until_complete(self.order_canceling(json.dumps(request)))
+    def buy_order(self, instrument_name:str, amount:int, type:str, label:str):
+        context = {
+            'instrument_name' : instrument_name,
+            'amount' : amount,
+            'type' : type,
+            'label' : label
+        }
+        response = self.session.get(self.private_buy_url, params=context)
+        return self.request(self.private_buy_url, context)
+
+    def sell_order(self, amount, instrument_name, price, trigger, trigger_price):
+        context = {
+            'amount' : amount,
+            'instrument_name' : instrument_name,
+            'price' : price,
+            'trigger' : trigger,
+            'trigger_price' : trigger_price
+        }
+        response = self.session.get(self.private_sell_url, params=context)
+        return print(response)
     
 
-    async def buy_order(self, request, instrument_name, amount, type, label):
-        '''
-        This method cancels all users orders and trigger
-        orders within all currencies and instrument kinds.
-        This method takes no parameters.
-        '''
+
+    def get_order_book(self, instrument_name:str, depth:int):
         context = {
-            "instrument_name" : instrument_name,
-            "amount" : amount,
-            "type" : type,
-            "label" : label
+            'instrument_name' : instrument_name,
+            'depth' : depth
         }
-        self.json["id"] = 5275
-        self.json["method"] = "private/buy"
-        self.json["params"] = context
-        async with websockets.connect(self.url) as websocket:
-            await websocket.send(request)
-            response = await websocket.recv()
-            response = json.loads(response)
-            print(response)
-        return asyncio.get_event_loop().run_until_complete(self.buy_order(json.dumps(request)))
+        response = self.session.get(self.get_order_book_url, params=context)
+        return print(response)
+    
 
+robot = Robot(client_id, client_secret)
 
-    async def sell_order(self, request, instrument_name, amount, type, price, trigger_price, trigger):
-        '''
-        Places a sell order for an instrument.
-        '''
-        context = {
-            "instrument_name" : instrument_name,
-            "amount" : amount,
-            "type" : type,
-            "price" : price,
-            "trigger_price" : trigger_price,
-            "trigger" : trigger
-        }
-        self.json["id"] = 2148
-        self.json["method"] = "private/sell"
-        self.json["params"] = context
-        async with websockets.connect(self.url) as websocket:
-            await websocket.send(request)
-            response = await websocket.recv()
-            response = json.loads(response)
-            print(response)
-        return asyncio.get_event_loop().run_until_complete(self.sell_order(json.dumps(request)))
-
-
-    async def get_mark_price(self, request, order_id):
-        '''
-        Places a sell order for an instrument.
-        '''
-        context = {
-            "order_id" : order_id
-        }
-        self.json["id"] = 4316
-        self.json["method"] = "private/get_order_state"
-        self.json["params"] = context
-        async with websockets.connect(self.url) as websocket:
-            await websocket.send(request)
-            response = await websocket.recv()
-            response = json.loads(response)
-            print(response)
-        return asyncio.get_event_loop().run_until_complete(self.sell_order(json.dumps(request)))
-
+# robot.auth()
+robot.buy_order('BTC-PERPETUAL', 40, 'market', 'market0000234')
+# robot.sell_order(10, 'BTC-PERPETUAL', 145.61, 'last_price', 145)
+# robot.get_order_book('BTC-PERPETUAL', 5)
+# headers = {
+#             'Accept':'application/json', 
+#             'Authorization':  self.auth()
+#         }
+# self.request(self.private_buy_url, context)
