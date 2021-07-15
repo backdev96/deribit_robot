@@ -37,8 +37,8 @@ class Robot(object):
             'type' : type,
             'label' : label
         }
-        response = self.session.get(self.private_buy_url, params=context)
         return self.request(self.private_buy_url, context)
+    
 
     def sell_order(self, amount, instrument_name, price, trigger, trigger_price):
         context = {
@@ -48,8 +48,7 @@ class Robot(object):
             'trigger' : trigger,
             'trigger_price' : trigger_price
         }
-        response = self.session.get(self.private_sell_url, params=context)
-        return print(response)
+        return self.request(self.private_sell_url, context)
     
 
 
@@ -58,16 +57,15 @@ class Robot(object):
             'instrument_name' : instrument_name,
             'depth' : depth
         }
-        response = self.session.get(self.get_order_book_url, params=context)
-        return print(response)
+        return self.request(self.get_order_book_url, context)
     
 
 robot = Robot(client_id, client_secret)
 
 # robot.auth()
-robot.buy_order('BTC-PERPETUAL', 40, 'market', 'market0000234')
+# robot.buy_order('BTC-PERPETUAL', 40, 'market', 'market0000234')
 # robot.sell_order(10, 'BTC-PERPETUAL', 145.61, 'last_price', 145)
-# robot.get_order_book('BTC-PERPETUAL', 5)
+robot.get_order_book('BTC-PERPETUAL', 5)
 # headers = {
 #             'Accept':'application/json', 
 #             'Authorization':  self.auth()
