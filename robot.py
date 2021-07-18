@@ -56,8 +56,7 @@ def trade():
                 elif sell_price > current_price:
                     method = 'buy'
                     orders_count = 0
-                    print('Sell order completed,'
-                          f'current price is {current_price}')
+                    print(f'Sold, current price is {current_price}')
                 else:
                     print('waiting for sell_price < current_price')
 
@@ -73,8 +72,7 @@ def trade():
                 print('Buy order located')
                 # Buy order cancelling, completing.
                 if buy_price > current_price:
-                    print('Buy order completed,'
-                          f'current price is {current_price}')
+                    print(f'Bought, current price is {current_price}')
                     orders_count -= 1
                     method = 'sell'
                 elif current_price > buy_price + gap + gap_ignore:
@@ -88,12 +86,23 @@ def trade():
 
 if __name__ == '__main__':
     # Import settings for bot.
-    with open(r'config.yaml') as file:
-        creds = yaml.full_load(file)
-        gap = float(creds['gap'])
-        gap_ignore = float(creds['gap_ignore'])
-        instrument_name = creds['instrument_name']
-        depth = int(creds['depth'])
-        amount = int(creds['amount'])
+    with open(r'settings.yaml') as file:
+        settings = yaml.full_load(file)
+        gap = float(settings['gap'])
+        gap_ignore = float(settings['gap_ignore'])
+        instrument_name = settings['instrument_name']
+        depth = int(settings['depth'])
+        amount = int(settings['amount'])
 
     trade()
+
+# New iteration started....0.....buy
+# Buy order created, buy price is 31339.53
+# New iteration started....1.....sell
+# Buy order located
+# waiting for buy_price < current_price
+# New iteration started....1.....sell
+# Buy order located
+# Buy order canceled
+# New iteration started....1.....buy
+# Sell order located

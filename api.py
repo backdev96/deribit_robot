@@ -1,8 +1,8 @@
 import json
+from decouple import config
 
 import requests
 
-from credentials import client_id, client_secret
 from urls import (auth_url, cancel_orders_url,
                   get_open_orders_url, get_order_book_url, trade_url)
 
@@ -62,4 +62,4 @@ class Robot(object):
         return self.request(self.get_open_orders_url, context)
 
 
-robot = Robot(client_id, client_secret)
+robot = Robot(config('CLIENT_ID'), config('CLIENT_SECRET'))

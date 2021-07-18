@@ -1,0 +1,9 @@
+version: '3.9'
+
+services:
+  robot:
+    image:
+        backdev96/deribit
+    restart: always
+    env_file:
+      - ./.env
