@@ -1,0 +1,5 @@
+auth_url = 'https://test.deribit.com/api/v2/public/auth?'
+get_order_book_url = 'https://test.deribit.com/api/v2/public/get_order_book'
+cancel_orders_url = 'https://test.deribit.com/api/v2/private/cancel_all'
+trade_url = 'https://test.deribit.com/api/v2/private/'
+get_open_orders_url = 'https://test.deribit.com/api/v2/private/get_open_orders_by_instrument'

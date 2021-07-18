@@ -2,8 +2,9 @@ import json
 
 import requests
 
-from credentials import (auth_url, cancel_orders_url, client_id, client_secret,
-                         get_open_orders_url, get_order_book_url, trade_url)
+from credentials import client_id, client_secret
+from urls import (auth_url, cancel_orders_url,
+                  get_open_orders_url, get_order_book_url, trade_url)
 
 
 class Robot(object):
