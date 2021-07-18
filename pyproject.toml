@@ -8,6 +8,8 @@ authors = ["Stas <stasefremovx@gmail.com>"]
 python = "^3.9"
 requests = "^2.26.0"
 PyYAML = "^5.4.1"
+flake8 = "^3.9.2"
+isort = "^5.9.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
