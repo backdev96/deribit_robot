@@ -1,14 +1,7 @@
 from api import robot
 from api import *
 import time
-
-
-gap = 1.0
-gap_ignore = 0.05
-instrument_name = 'BTC-PERPETUAL'
-depth = 5
-amount = int(40)
-
+import yaml
 
 
 def trade():
@@ -40,7 +33,7 @@ def trade():
 
         if method == 'buy':
             if orders_count == 0:
-            # Buy order creation
+            # Buy order creation.
                 buy_price = current_price - gap/2
                 robot.trade(instrument_name, amount, buy_price, method)
                 orders_count += 1
@@ -52,7 +45,7 @@ def trade():
                     robot.cancel_orders()
                     print('Sell order canceled')
                     orders_count -= 1
-                    method = 'sell'         # Sell order cancelling, completing
+                    method = 'sell'         # Sell order cancelling, completing.
                 elif sell_price > current_price:
                     method = 'buy'
                     orders_count = 0
@@ -62,7 +55,7 @@ def trade():
 
         else:
             if orders_count == 0:
-                # Sell order creation
+                # Sell order creation.
                 sell_price = current_price - gap/2
                 robot.trade(instrument_name, amount, sell_price, method)
                 print(f'Sell order created, sell price is {sell_price}')
@@ -76,11 +69,20 @@ def trade():
                     method = 'sell'
                 elif current_price > buy_price + gap + gap_ignore:
                     robot.cancel_orders()
-                    print('Buy order canceled')     # Buy order cancelling, completing
+                    print('Buy order canceled')     # Buy order cancelling, completing.
                     orders_count = 0
                     method = 'buy'
                 else:
                     print('waiting for buy_price < current_price')
 
-if __name__ == '__main__':      
+if __name__ == '__main__':
+    # Import settings for bot.
+    with open(r'config.yaml') as file:
+        creds = yaml.full_load(file)
+        gap = float(creds['gap'])
+        gap_ignore = float(creds['gap_ignore'])
+        instrument_name =  creds['instrument_name']
+        depth = int(creds['depth'])
+        amount = int(creds['amount'])
+
     trade()
