@@ -95,14 +95,3 @@ if __name__ == '__main__':
         amount = int(settings['amount'])
 
     trade()
-
-# New iteration started....0.....buy
-# Buy order created, buy price is 31339.53
-# New iteration started....1.....sell
-# Buy order located
-# waiting for buy_price < current_price
-# New iteration started....1.....sell
-# Buy order located
-# Buy order canceled
-# New iteration started....1.....buy
-# Sell order located
