@@ -1,0 +1,5 @@
+gap : 5.0
+gap_ignore : 2.0
+instrument_name : 'BTC-PERPETUAL'
+depth : 5
+amount : 40
