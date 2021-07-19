@@ -1,10 +1,10 @@
 import json
-from decouple import config
 
 import requests
+from decouple import config
 
-from urls import (auth_url, cancel_orders_url,
-                  get_open_orders_url, get_order_book_url, trade_url)
+from urls import (auth_url, cancel_orders_url, get_open_orders_url,
+                  get_order_book_url, trade_url)
 
 
 class Robot(object):

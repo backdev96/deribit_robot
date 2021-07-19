@@ -3,7 +3,7 @@ import time
 import yaml
 
 from api import *
-from api import robot
+from database import order_into_db
 
 
 def trade():
@@ -30,9 +30,9 @@ def trade():
     robot.cancel_orders()
     while True:
         time.sleep(4)
-        current_price = float(json.loads(
-                    robot.get_order_book(
-                    instrument_name, depth).text)['result']['mark_price'])
+        current_price = float(json.loads(robot.get_order_book(
+                                         instrument_name, depth).text)\
+                                         ['result']['mark_price'])
         orders_count = len(json.loads(robot.get_open_orders(
                         instrument_name).text)['result'])
         print(f'New iteration started....{orders_count}.....{method}')
@@ -44,6 +44,7 @@ def trade():
                 robot.trade(instrument_name, amount, buy_price, method)
                 orders_count += 1
                 print(f'Buy order created, buy price is {buy_price}')
+                order_into_db(method, 'Order created', current_price, amount)
                 method = 'sell'
             else:
                 print('Sell order located')
@@ -53,10 +54,14 @@ def trade():
                     print('Sell order canceled')
                     orders_count -= 1
                     method = 'sell'
+                    order_into_db(method, 'Order canceled',
+                                  current_price, amount)
                 elif sell_price > current_price:
-                    method = 'buy'
                     orders_count = 0
                     print(f'Sold, current price is {current_price}')
+                    method = 'sell'
+                    order_into_db(method, 'Order sold', current_price, amount)
+                    method = 'buy'
                 else:
                     print('waiting for sell_price < current_price')
 
@@ -66,6 +71,7 @@ def trade():
                 sell_price = current_price - gap/2
                 robot.trade(instrument_name, amount, sell_price, method)
                 print(f'Sell order created, sell price is {sell_price}')
+                order_into_db(method, 'Order created', current_price, amount)
                 method = 'buy'
                 orders_count += 1
             else:
@@ -74,19 +80,24 @@ def trade():
                 if buy_price > current_price:
                     print(f'Bought, current price is {current_price}')
                     orders_count -= 1
+                    method = 'buy'
+                    order_into_db(method, 'Order bought',\
+                                  current_price, amount)
                     method = 'sell'
                 elif current_price > buy_price + gap + gap_ignore:
                     robot.cancel_orders()
                     print('Buy order canceled')
-                    orders_count = 0
                     method = 'buy'
+                    order_into_db(method, 'Order canceled',\
+                                  current_price, amount)
+                    orders_count = 0
                 else:
                     print('waiting for buy_price < current_price')
 
 
 if __name__ == '__main__':
     # Import settings for bot.
-    with open(r'settings.yaml') as file:
+    with open('settings.yaml') as file:
         settings = yaml.full_load(file)
         gap = float(settings['gap'])
         gap_ignore = float(settings['gap_ignore'])
