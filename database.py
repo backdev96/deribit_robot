@@ -1,4 +1,6 @@
 import mysql.connector
+from decouple import config
+
 
 
 def order_into_db(method, operation, current_price, amount):

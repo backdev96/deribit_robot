@@ -1,9 +1,17 @@
 version: '3.9'
 
 services:
-  robot:
-    image:
-        backdev96/deribit
-    restart: always
-    env_file:
-      - ./.env
+    db:
+        image: mysql:latest
+        volumes:
+            - ./mysql_data:/var/lib/mysql
+        env_file:
+            - ./.env
+    robot:
+        image:
+            backdev96/deribit
+        restart: always
+        depends_on:
+            - db
+        env_file:
+            - ./.env
