@@ -1,5 +1,5 @@
 import time
-
+import logging
 import yaml
 
 from api import *
@@ -35,7 +35,7 @@ def trade():
                                          ['result']['mark_price'])
         orders_count = len(json.loads(robot.get_open_orders(
                         instrument_name).text)['result'])
-        print(f'New iteration started....{orders_count}.....{method}')
+        logging.info(f'New iteration started....{orders_count}.....{method}')
 
         if method == 'buy':
             if orders_count == 0:
@@ -43,48 +43,48 @@ def trade():
                 buy_price = current_price - gap/2
                 robot.trade(instrument_name, amount, buy_price, method)
                 orders_count += 1
-                print(f'Buy order created, buy price is {buy_price}')
+                logging.info(f'Buy order created, buy price is {buy_price}')
                 method = 'sell'
             else:
-                print('Sell order located')
+                logging.info('Sell order located')
                 # Sell order cancelling, completing.
                 if current_price < sell_price - gap - gap_ignore:
                     robot.cancel_orders()
-                    print('Sell order canceled')
+                    logging.info('Sell order canceled')
                     orders_count -= 1
                     method = 'sell'
                     # order_into_db(method, 'Order canceled',
                 elif sell_price > current_price:
                     orders_count = 0
-                    print(f'Sold, current price is {current_price}')
+                    logging.info(f'Sold, current price is {current_price}')
                     method = 'sell'
                     method = 'buy'
                 else:
-                    print('waiting for sell_price < current_price')
+                    logging.info('waiting for sell_price < current_price')
 
         else:
             if orders_count == 0:
                 # Sell order creation.
                 sell_price = current_price - gap/2
                 robot.trade(instrument_name, amount, sell_price, method)
-                print(f'Sell order created, sell price is {sell_price}')
+                logging.info(f'Sell order created, sell price is {sell_price}')
                 method = 'buy'
                 orders_count += 1
             else:
-                print('Buy order located')
+                logging.info('Buy order located')
                 # Buy order cancelling, completing.
                 if buy_price > current_price:
-                    print(f'Bought, current price is {current_price}')
+                    logging.info(f'Bought, current price is {current_price}')
                     orders_count -= 1
                     method = 'buy'
                     method = 'sell'
                 elif current_price > buy_price + gap + gap_ignore:
                     robot.cancel_orders()
-                    print('Buy order canceled')
+                    logging.info('Buy order canceled')
                     method = 'buy'
                     orders_count = 0
                 else:
-                    print('waiting for buy_price < current_price')
+                    logging.info('waiting for buy_price < current_price')
 
 
 if __name__ == '__main__':
@@ -95,5 +95,6 @@ if __name__ == '__main__':
         instrument_name = settings['instrument_name']
         depth = int(settings['depth'])
         amount = int(settings['amount'])
+        logging.basicConfig(level=logging.INFO)
 
     trade()
